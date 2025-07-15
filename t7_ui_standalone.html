@@ -145,7 +145,15 @@
 
         .main-tab {
             display: grid;
-            grid-template-columns: 1fr 1fr 0.8fr;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 1fr;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .map-tab {
+            display: grid;
+            grid-template-columns: 0.8fr 1fr;
             grid-template-rows: 1fr;
             gap: 15px;
             height: 100%;
@@ -176,8 +184,8 @@
         }
         
         .edit-btn, .save-btn {
-            padding: 4px 8px;
-            font-size: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
             font-weight: bold;
             border: none;
             border-radius: 4px;
@@ -296,7 +304,7 @@
 
 
         .status-control {
-            grid-column: 3;
+            grid-column: 2;
             grid-row: 1;
             background-color: #f8f9fa;
             padding: 10px;
@@ -322,6 +330,18 @@
             padding-top: 10px;
             margin-top: 10px;
         }
+
+        .history-panel {
+            grid-column: 3;
+            grid-row: 1;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
         
         .history-info h3 {
             margin-bottom: 8px;
@@ -331,20 +351,20 @@
         }
         
         .history-list {
-            max-height: 150px;
+            flex: 1;
             overflow-y: auto;
         }
         
         .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 6px 8px;
             background-color: #ffffff;
             border-radius: 4px;
             border-left: 3px solid #27ae60;
             box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         
         .history-item .history-label {
@@ -402,8 +422,8 @@
         .control-panel {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            justify-content: flex-start;
+            align-items: flex-start;
             padding-bottom: 10px;
             border-bottom: 1px solid #dee2e6;
         }
@@ -469,7 +489,7 @@
         }
         
         .toggle-switch input:not(:checked) + .slider {
-            background-color: #e74c3c;
+            background-color: #95a5a6;
         }
         
 
@@ -579,7 +599,8 @@
 
         <div class="tab-container">
             <button class="tab active" onclick="switchTab('main')">メイン</button>
-            <button class="tab" onclick="switchTab('details')">詳細</button>
+            <button class="tab" onclick="switchTab('map')">マップ</button>
+            <button class="tab" onclick="switchTab('details')">システム</button>
         </div>
 
         <div class="content">
@@ -587,256 +608,18 @@
                 <div class="main-tab">
                     <div class="settings-display">
                         <div class="settings-header">
-                            <h3>設定値</h3>
+                            <h3>設定</h3>
                             <button id="edit-settings-btn" class="edit-btn" onclick="toggleEditMode()">編集</button>
                             <button id="save-settings-btn" class="save-btn" onclick="saveMainSettings()" style="display: none;">保存</button>
                         </div>
-                        <div class="value-display" id="main-settings-display">
-                            <div class="value-item">
-                                <span class="label">開始エリア</span>
-                                <span class="value" id="start-area">エリア1</span>
-                                <div class="edit-controls" style="display: none;">
-                                    <select id="edit-area" class="touch-select-input">
-                                        <option value="1">エリア1</option>
-                                        <option value="2">エリア2</option>
-                                        <option value="3">エリア3</option>
-                                        <option value="4">エリア4</option>
-                                        <option value="5">エリア5</option>
-                                        <option value="6">エリア6</option>
-                                        <option value="7">エリア7</option>
-                                        <option value="8">エリア8</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="value-item">
-                                <span class="label">開始うね</span>
-                                <span class="value" id="start-lane">通路1, 西側</span>
-                                <div class="edit-controls" style="display: none;">
-                                    <div style="display: flex; gap: 5px;">
-                                        <select id="edit-path" class="touch-select-input" style="flex: 1.3;">
-                                            <option value="1">通路1</option>
-                                            <option value="2">通路2</option>
-                                            <option value="3">通路3</option>
-                                            <option value="4">通路4</option>
-                                            <option value="5">通路5</option>
-                                        </select>
-                                        <select id="edit-ridge" class="touch-select-input" style="flex: 1.2;">
-                                            <option value="west">西側</option>
-                                            <option value="east">東側</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="value-item">
-                                <span class="label">うね間移動方向</span>
-                                <span class="value" id="direction">右</span>
-                                <div class="edit-controls" style="display: none;">
-                                    <select id="edit-direction" class="touch-select-input">
-                                        <option value="east">右</option>
-                                        <option value="west">左</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="value-item" id="end-area-item">
-                                <span class="label">終了エリア</span>
-                                <span class="value" id="end-area">エリア1</span>
-                                <div class="edit-controls" style="display: none;">
-                                    <select id="edit-end-area" class="touch-select-input">
-                                        <option value="1">エリア1</option>
-                                        <option value="2">エリア2</option>
-                                        <option value="3">エリア3</option>
-                                        <option value="4">エリア4</option>
-                                        <option value="5">エリア5</option>
-                                        <option value="6">エリア6</option>
-                                        <option value="7">エリア7</option>
-                                        <option value="8">エリア8</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="value-item" id="end-lane-item">
-                                <span class="label">終了うね</span>
-                                <span class="value" id="end-lane">通路1, 西側</span>
-                                <div class="edit-controls" style="display: none;">
-                                    <div style="display: flex; gap: 5px;">
-                                        <select id="edit-end-path" class="touch-select-input" style="flex: 1.3;">
-                                            <option value="1">通路1</option>
-                                            <option value="2">通路2</option>
-                                            <option value="3">通路3</option>
-                                            <option value="4">通路4</option>
-                                            <option value="5">通路5</option>
-                                        </select>
-                                        <select id="edit-end-ridge" class="touch-select-input" style="flex: 1.2;">
-                                            <option value="west">西側</option>
-                                            <option value="east">東側</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="value-item">
-                                <span class="label">目標収穫量 (kg)</span>
-                                <span class="value" id="target-harvest">40</span>
-                                <div class="edit-controls" style="display: none;">
-                                    <select id="edit-target" class="touch-select-input">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                        <option value="11">11</option>
-                                        <option value="12">12</option>
-                                        <option value="13">13</option>
-                                        <option value="14">14</option>
-                                        <option value="15">15</option>
-                                        <option value="16">16</option>
-                                        <option value="17">17</option>
-                                        <option value="18">18</option>
-                                        <option value="19">19</option>
-                                        <option value="20">20</option>
-                                        <option value="21">21</option>
-                                        <option value="22">22</option>
-                                        <option value="23">23</option>
-                                        <option value="24">24</option>
-                                        <option value="25">25</option>
-                                        <option value="26">26</option>
-                                        <option value="27">27</option>
-                                        <option value="28">28</option>
-                                        <option value="29">29</option>
-                                        <option value="30">30</option>
-                                        <option value="31">31</option>
-                                        <option value="32">32</option>
-                                        <option value="33">33</option>
-                                        <option value="34">34</option>
-                                        <option value="35">35</option>
-                                        <option value="36">36</option>
-                                        <option value="37">37</option>
-                                        <option value="38">38</option>
-                                        <option value="39">39</option>
-                                        <option value="40" selected>40</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="value-item">
-                                <span class="label">完熟度 (%)</span>
-                                <span class="value" id="ripeness">90</span>
-                                <div class="edit-controls" style="display: none;">
-                                    <select id="edit-ripeness" class="touch-select-input">
-                                        <option value="50">50</option>
-                                        <option value="51">51</option>
-                                        <option value="52">52</option>
-                                        <option value="53">53</option>
-                                        <option value="54">54</option>
-                                        <option value="55">55</option>
-                                        <option value="56">56</option>
-                                        <option value="57">57</option>
-                                        <option value="58">58</option>
-                                        <option value="59">59</option>
-                                        <option value="60">60</option>
-                                        <option value="61">61</option>
-                                        <option value="62">62</option>
-                                        <option value="63">63</option>
-                                        <option value="64">64</option>
-                                        <option value="65">65</option>
-                                        <option value="66">66</option>
-                                        <option value="67">67</option>
-                                        <option value="68">68</option>
-                                        <option value="69">69</option>
-                                        <option value="70">70</option>
-                                        <option value="71">71</option>
-                                        <option value="72">72</option>
-                                        <option value="73">73</option>
-                                        <option value="74">74</option>
-                                        <option value="75">75</option>
-                                        <option value="76">76</option>
-                                        <option value="77">77</option>
-                                        <option value="78">78</option>
-                                        <option value="79">79</option>
-                                        <option value="80">80</option>
-                                        <option value="81">81</option>
-                                        <option value="82">82</option>
-                                        <option value="83">83</option>
-                                        <option value="84">84</option>
-                                        <option value="85">85</option>
-                                        <option value="86">86</option>
-                                        <option value="87">87</option>
-                                        <option value="88">88</option>
-                                        <option value="89">89</option>
-                                        <option value="90" selected>90</option>
-                                        <option value="91">91</option>
-                                        <option value="92">92</option>
-                                        <option value="93">93</option>
-                                        <option value="94">94</option>
-                                        <option value="95">95</option>
-                                        <option value="96">96</option>
-                                        <option value="97">97</option>
-                                        <option value="98">98</option>
-                                        <option value="99">99</option>
-                                        <option value="100">100</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="value-display" id="main-settings-display"></div>
                     </div>
 
-                    <div class="map-container">
-                        <h3 style="position: absolute; top: 10px; left: 10px; margin: 0; color: #2c3e50; font-size: 16px; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px; z-index: 1;">マップ</h3>
-                        <img src="map_house_3.png" alt="農場マップ">
-                        <svg class="map-overlay" width="100%" height="100%">
-                            <!-- 移動計画の軌跡 -->
-                            <path id="robot-path" stroke="#e74c3c" stroke-width="2" fill="none" d="M 45 250 L 225 250 M 45 50 L 45 450 M 57 50 L 57 450 M 69 50 L 69 450 M 81 50 L 81 450 M 93 50 L 93 450 M 105 50 L 105 450 M 117 50 L 117 450 M 129 50 L 129 450 M 141 50 L 141 450 M 153 50 L 153 450 M 165 50 L 165 450 M 177 50 L 177 450 M 189 50 L 189 450 M 201 50 L 201 450 M 213 50 L 213 450 M 225 50 L 225 450"/>
-                            
-                            <!-- 経路の順序番号 -->
-                            <g id="path-numbers">
-                                <!-- 上半分の番号（左から右） -->
-                                <text x="45" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">1</text>
-                                <text x="57" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">2</text>
-                                <text x="69" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">3</text>
-                                <text x="81" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">4</text>
-                                <text x="93" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">5</text>
-                                <text x="105" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">6</text>
-                                <text x="117" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">7</text>
-                                <text x="129" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">8</text>
-                                <text x="141" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">9</text>
-                                <text x="153" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">10</text>
-                                <text x="165" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">11</text>
-                                <text x="177" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">12</text>
-                                <text x="189" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">13</text>
-                                <text x="201" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">14</text>
-                                <text x="213" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">15</text>
-                                <text x="225" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">16</text>
-                                
-                                <!-- 下半分の番号（右から左） -->
-                                <text x="225" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">17</text>
-                                <text x="213" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">18</text>
-                                <text x="201" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">19</text>
-                                <text x="189" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">20</text>
-                                <text x="177" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">21</text>
-                                <text x="165" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">22</text>
-                                <text x="153" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">23</text>
-                                <text x="141" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">24</text>
-                                <text x="129" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">25</text>
-                                <text x="117" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">26</text>
-                                <text x="105" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">27</text>
-                                <text x="93" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">28</text>
-                                <text x="81" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">29</text>
-                                <text x="69" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">30</text>
-                                <text x="57" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">31</text>
-                                <text x="45" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">32</text>
-                            </g>
-                            
-                            <!-- ロボットの現在位置（三角形） -->
-                            <g id="robot-position" transform="translate(45, 250)">
-                                <path d="M 0,-8 L -6,6 L 6,6 Z" fill="#e74c3c" stroke="white" stroke-width="1.5" transform="rotate(0)"/>
-                            </g>
-                        </svg>
-                    </div>
 
                     <div class="status-control">
                         <div class="control-panel">
+                            <h3 style="margin-bottom: 10px; color: #2c3e50; font-size: 18px; font-weight: bold;">操作</h3>
+                            
                             <div class="toggle-container">
                                 <span class="external-label left">収穫終了</span>
                                 <label class="toggle-switch">
@@ -851,7 +634,7 @@
                             <div class="value-display">
                                 <div class="value-item">
                                     <span class="label">ロボット状態</span>
-                                    <span class="value" id="robot-status" class="status-standby">待機中</span>
+                                    <span class="value" id="robot-status" class="status-standby">開始待ち</span>
                                 </div>
                                 <div class="value-item">
                                     <span class="label">現在の収穫量 (kg)</span>
@@ -864,12 +647,36 @@
                             </div>
                             <div id="error-container"></div>
                         </div>
-                        <div class="history-info">
-                            <h3>履歴</h3>
-                            <div id="harvest-history" class="history-list">
-                                <div class="history-empty">履歴なし</div>
-                            </div>
+                    </div>
+
+                    <div class="history-panel">
+                        <h3 style="margin-bottom: 10px; color: #2c3e50; font-size: 18px; font-weight: bold;">履歴</h3>
+                        <div id="harvest-history" class="history-list" style="flex: 1; overflow-y: auto;">
+                            <div class="history-empty">履歴なし</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="map-tab" class="tab-content">
+                <div class="map-tab">
+                    <div class="settings-display">
+                        <div class="settings-header">
+                            <h3>設定値</h3>
+                        </div>
+                        <div class="value-display" id="map-settings-display"></div>
+                    </div>
+
+                    <div class="map-container">
+                        <h3 style="position: absolute; top: 10px; left: 10px; margin: 0; color: #2c3e50; font-size: 16px; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px; z-index: 1;">マップ</h3>
+                        <img src="map_house_3.png" alt="農場マップ">
+                        <svg class="map-overlay" width="100%" height="100%">
+                            <path id="robot-path" stroke="#e74c3c" stroke-width="2" fill="none"></path>
+                            <g id="path-numbers"></g>
+                            <g id="robot-position">
+                                <path d="M 0,-8 L -6,6 L 6,6 Z" fill="#e74c3c" stroke="white" stroke-width="1.5" transform="rotate(0)"/>
+                            </g>
+                        </svg>
                     </div>
                 </div>
             </div>
@@ -877,7 +684,6 @@
             <div id="details-tab" class="tab-content">
                 <div class="details-tab">
                     <div class="details-content">
-                        <h3 style="font-size: 16px; margin: 0 0 15px 0; color: #2c3e50;">詳細情報</h3>
                         
                         <div class="error-section">
                             <h4 style="font-size: 14px; margin: 0 0 10px 0; color: #e74c3c;">エラー内容</h4>
@@ -907,107 +713,65 @@
         let elapsedInterval = null;
         let currentHarvest = 0;
         let harvestInterval = null;
-        let robotPosition = { x: 45, y: 250 };
-        let robotDirection = 0; // ロボットの向き（度）
-        let pathPoints = [
+        // マップ設定
+        const mapConfig = {
+            startX: 115,     // 135 - 20 (左に20px)
+            centerY: 250,    // 230 + 20 (下に20px)
+            topY: 70,        // 50 + 20 (下に20px)
+            bottomY: 430,    // 410 + 20 (下に20px)
+            spacing: 12,
+            pathCount: 16
+        };
+        
+        let robotPosition = { x: mapConfig.startX, y: mapConfig.centerY };
+        let robotDirection = 0;
+        let pathPoints = [];
+        
+        // ロボット経路を動的生成
+        function generateRobotPath() {
+            const points = [];
+            
             // 上半分を左から右へ
-            { x: 45, y: 250 },   // 開始位置（第1縦線との交差点）
-            { x: 45, y: 50 },    // 第1縦線上端
-            { x: 45, y: 250 },   // 第1縦線交差点に戻る
-            { x: 57, y: 250 },   // 第2縦線交差点へ右に進む
-            { x: 57, y: 50 },    // 第2縦線上端
-            { x: 57, y: 250 },   // 第2縦線交差点に戻る
-            { x: 69, y: 250 },   // 第3縦線交差点へ右に進む
-            { x: 69, y: 50 },    // 第3縦線上端
-            { x: 69, y: 250 },   // 第3縦線交差点に戻る
-            { x: 81, y: 250 },   // 第4縦線交差点へ右に進む
-            { x: 81, y: 50 },    // 第4縦線上端
-            { x: 81, y: 250 },   // 第4縦線交差点に戻る
-            { x: 93, y: 250 },   // 第5縦線交差点へ右に進む
-            { x: 93, y: 50 },    // 第5縦線上端
-            { x: 93, y: 250 },   // 第5縦線交差点に戻る
-            { x: 105, y: 250 },  // 第6縦線交差点へ右に進む
-            { x: 105, y: 50 },   // 第6縦線上端
-            { x: 105, y: 250 },  // 第6縦線交差点に戻る
-            { x: 117, y: 250 },  // 第7縦線交差点へ右に進む
-            { x: 117, y: 50 },   // 第7縦線上端
-            { x: 117, y: 250 },  // 第7縦線交差点に戻る
-            { x: 129, y: 250 },  // 第8縦線交差点へ右に進む
-            { x: 129, y: 50 },   // 第8縦線上端
-            { x: 129, y: 250 },  // 第8縦線交差点に戻る
-            { x: 141, y: 250 },  // 第9縦線交差点へ右に進む
-            { x: 141, y: 50 },   // 第9縦線上端
-            { x: 141, y: 250 },  // 第9縦線交差点に戻る
-            { x: 153, y: 250 },  // 第10縦線交差点へ右に進む
-            { x: 153, y: 50 },   // 第10縦線上端
-            { x: 153, y: 250 },  // 第10縦線交差点に戻る
-            { x: 165, y: 250 },  // 第11縦線交差点へ右に進む
-            { x: 165, y: 50 },   // 第11縦線上端
-            { x: 165, y: 250 },  // 第11縦線交差点に戻る
-            { x: 177, y: 250 },  // 第12縦線交差点へ右に進む
-            { x: 177, y: 50 },   // 第12縦線上端
-            { x: 177, y: 250 },  // 第12縦線交差点に戻る
-            { x: 189, y: 250 },  // 第13縦線交差点へ右に進む
-            { x: 189, y: 50 },   // 第13縦線上端
-            { x: 189, y: 250 },  // 第13縦線交差点に戻る
-            { x: 201, y: 250 },  // 第14縦線交差点へ右に進む
-            { x: 201, y: 50 },   // 第14縦線上端
-            { x: 201, y: 250 },  // 第14縦線交差点に戻る
-            { x: 213, y: 250 },  // 第15縦線交差点へ右に進む
-            { x: 213, y: 50 },   // 第15縦線上端
-            { x: 213, y: 250 },  // 第15縦線交差点に戻る
-            { x: 225, y: 250 },  // 第16縦線交差点へ右に進む
-            { x: 225, y: 50 },   // 第16縦線上端
-            { x: 225, y: 250 },  // 第16縦線交差点に戻る
+            for (let i = 0; i < mapConfig.pathCount; i++) {
+                const x = mapConfig.startX + i * mapConfig.spacing;
+                points.push({ x, y: mapConfig.centerY });  // 交差点
+                points.push({ x, y: mapConfig.topY });     // 上端
+                points.push({ x, y: mapConfig.centerY });  // 交差点に戻る
+                if (i < mapConfig.pathCount - 1) {
+                    points.push({ x: x + mapConfig.spacing, y: mapConfig.centerY }); // 次の交差点へ
+                }
+            }
+            
             // 下半分を右から左へ
-            { x: 225, y: 450 },  // 第16縦線下端
-            { x: 225, y: 250 },  // 第16縦線交差点に戻る
-            { x: 213, y: 250 },  // 第15縦線交差点へ左に進む
-            { x: 213, y: 450 },  // 第15縦線下端
-            { x: 213, y: 250 },  // 第15縦線交差点に戻る
-            { x: 201, y: 250 },  // 第14縦線交差点へ左に進む
-            { x: 201, y: 450 },  // 第14縦線下端
-            { x: 201, y: 250 },  // 第14縦線交差点に戻る
-            { x: 189, y: 250 },  // 第13縦線交差点へ左に進む
-            { x: 189, y: 450 },  // 第13縦線下端
-            { x: 189, y: 250 },  // 第13縦線交差点に戻る
-            { x: 177, y: 250 },  // 第12縦線交差点へ左に進む
-            { x: 177, y: 450 },  // 第12縦線下端
-            { x: 177, y: 250 },  // 第12縦線交差点に戻る
-            { x: 165, y: 250 },  // 第11縦線交差点へ左に進む
-            { x: 165, y: 450 },  // 第11縦線下端
-            { x: 165, y: 250 },  // 第11縦線交差点に戻る
-            { x: 153, y: 250 },  // 第10縦線交差点へ左に進む
-            { x: 153, y: 450 },  // 第10縦線下端
-            { x: 153, y: 250 },  // 第10縦線交差点に戻る
-            { x: 141, y: 250 },  // 第9縦線交差点へ左に進む
-            { x: 141, y: 450 },  // 第9縦線下端
-            { x: 141, y: 250 },  // 第9縦線交差点に戻る
-            { x: 129, y: 250 },  // 第8縦線交差点へ左に進む
-            { x: 129, y: 450 },  // 第8縦線下端
-            { x: 129, y: 250 },  // 第8縦線交差点に戻る
-            { x: 117, y: 250 },  // 第7縦線交差点へ左に進む
-            { x: 117, y: 450 },  // 第7縦線下端
-            { x: 117, y: 250 },  // 第7縦線交差点に戻る
-            { x: 105, y: 250 },  // 第6縦線交差点へ左に進む
-            { x: 105, y: 450 },  // 第6縦線下端
-            { x: 105, y: 250 },  // 第6縦線交差点に戻る
-            { x: 93, y: 250 },   // 第5縦線交差点へ左に進む
-            { x: 93, y: 450 },   // 第5縦線下端
-            { x: 93, y: 250 },   // 第5縦線交差点に戻る
-            { x: 81, y: 250 },   // 第4縦線交差点へ左に進む
-            { x: 81, y: 450 },   // 第4縦線下端
-            { x: 81, y: 250 },   // 第4縦線交差点に戻る
-            { x: 69, y: 250 },   // 第3縦線交差点へ左に進む
-            { x: 69, y: 450 },   // 第3縦線下端
-            { x: 69, y: 250 },   // 第3縦線交差点に戻る
-            { x: 57, y: 250 },   // 第2縦線交差点へ左に進む
-            { x: 57, y: 450 },   // 第2縦線下端
-            { x: 57, y: 250 },   // 第2縦線交差点に戻る
-            { x: 45, y: 250 },   // 第1縦線交差点へ左に進む
-            { x: 45, y: 450 },   // 第1縦線下端
-            { x: 45, y: 250 }    // 終了位置（開始位置に戻る）
-        ];
+            for (let i = mapConfig.pathCount - 1; i >= 0; i--) {
+                const x = mapConfig.startX + i * mapConfig.spacing;
+                points.push({ x, y: mapConfig.bottomY });  // 下端
+                points.push({ x, y: mapConfig.centerY });  // 交差点に戻る
+                if (i > 0) {
+                    points.push({ x: x - mapConfig.spacing, y: mapConfig.centerY }); // 前の交差点へ
+                }
+            }
+            
+            return points;
+        }
+        
+        // SVGパスを動的生成
+        function generateSVGPath() {
+            let pathData = '';
+            
+            // 横線（中央）
+            const startX = mapConfig.startX;
+            const endX = mapConfig.startX + (mapConfig.pathCount - 1) * mapConfig.spacing;
+            pathData += `M ${startX} ${mapConfig.centerY} L ${endX} ${mapConfig.centerY}`;
+            
+            // 縦線
+            for (let i = 0; i < mapConfig.pathCount; i++) {
+                const x = mapConfig.startX + i * mapConfig.spacing;
+                pathData += ` M ${x} ${mapConfig.topY} L ${x} ${mapConfig.bottomY}`;
+            }
+            
+            document.getElementById('robot-path').setAttribute('d', pathData);
+        }
         let currentPathIndex = 0;
         let pathProgress = 0;
         let harvestHistory = [];
@@ -1124,11 +888,20 @@
             const historyItem = {
                 harvest: harvest,
                 time: time,
-                timestamp: new Date()
+                timestamp: new Date(),
+                settings: {
+                    startArea: document.getElementById('start-area').textContent,
+                    startLane: document.getElementById('start-lane').textContent,
+                    endArea: document.getElementById('end-area').textContent,
+                    endLane: document.getElementById('end-lane').textContent,
+                    direction: document.getElementById('direction').textContent,
+                    target: document.getElementById('target-harvest').textContent,
+                    ripeness: document.getElementById('ripeness').textContent
+                }
             };
             
             harvestHistory.unshift(historyItem);
-            if (harvestHistory.length > 3) {
+            if (harvestHistory.length > 5) {
                 harvestHistory.pop();
             }
             
@@ -1148,19 +921,28 @@
             harvestHistory.forEach((item) => {
                 const date = item.timestamp.toLocaleDateString();
                 const time = item.timestamp.toLocaleTimeString();
+                
                 historyHTML += `
                     <div class="history-item">
-                        <div>
-                            <div class="history-label">${date} ${time}</div>
-                            <div class="history-label">収穫量: ${item.harvest}kg</div>
+                        <div style="font-size: 10px; color: #6c757d; line-height: 1.3;">
+                            ${date} ${time}<br>
+                            収穫量: ${item.harvest}kg<br>
+                            経過時間: ${item.time}
                         </div>
-                        <div class="history-value">時間: ${item.time}</div>
+                        <div style="font-size: 10px; color: #6c757d; line-height: 1.3;">
+                            開始: ${item.settings.startArea}, ${item.settings.startLane}<br>
+                            終了: ${item.settings.endArea}, ${item.settings.endLane}<br>
+                            移動方向: ${item.settings.direction}<br>
+                            目標: ${item.settings.target}<br>
+                            完熟度: ${item.settings.ripeness}
+                        </div>
                     </div>
                 `;
             });
             
             historyContainer.innerHTML = historyHTML;
         }
+
 
         // 収穫トグル
         function toggleHarvest() {
@@ -1176,7 +958,7 @@
                 startTime = new Date();
                 harvestInterval = setInterval(simulateHarvest, 500);
             } else {
-                statusSpan.textContent = '待機中';
+                statusSpan.textContent = '開始待ち';
                 statusSpan.className = 'status-standby';
                 
                 if (currentHarvest > 0) {
@@ -1212,7 +994,12 @@
             const contents = document.querySelectorAll('.tab-content');
             
             tabs.forEach(tab => {
-                if (tab.textContent === (tabName === 'main' ? 'メイン' : '詳細')) {
+                let tabText = '';
+                if (tabName === 'main') tabText = 'メイン';
+                else if (tabName === 'map') tabText = 'マップ';
+                else if (tabName === 'details') tabText = 'システム';
+                
+                if (tab.textContent === tabText) {
                     tab.classList.add('active');
                 } else {
                     tab.classList.remove('active');
@@ -1236,6 +1023,8 @@
                 const settings = JSON.parse(saved);
                 const ridgeText = settings.ridge === 'west' ? '西側' : '東側';
                 const directionText = settings.direction === 'east' ? '右' : '左';
+                
+                // メインタブの設定値更新
                 document.getElementById('start-area').textContent = `エリア${settings.area}`;
                 document.getElementById('start-lane').textContent = `通路${settings.path}, ${ridgeText}`;
                 document.getElementById('end-area').textContent = `エリア${settings.endArea || '8'}`;
@@ -1243,7 +1032,17 @@
                 document.getElementById('direction').textContent = directionText;
                 document.getElementById('target-harvest').textContent = settings.target;
                 document.getElementById('ripeness').textContent = settings.ripeness;
+                
+                // マップタブの設定値更新
+                document.getElementById('map-start-area').textContent = `エリア${settings.area}`;
+                document.getElementById('map-start-lane').textContent = `通路${settings.path}, ${ridgeText}`;
+                document.getElementById('map-end-area').textContent = `エリア${settings.endArea || '8'}`;
+                document.getElementById('map-end-lane').textContent = `通路${settings.endPath || '1'}, ${settings.endRidge === 'east' ? '東側' : '西側'}`;
+                document.getElementById('map-direction').textContent = directionText;
+                document.getElementById('map-target-harvest').textContent = settings.target;
+                document.getElementById('map-ripeness').textContent = settings.ripeness;
             } else {
+                // メインタブのデフォルト値
                 document.getElementById('start-area').textContent = 'エリア1';
                 document.getElementById('start-lane').textContent = '通路1, 西側';
                 document.getElementById('end-area').textContent = 'エリア8';
@@ -1251,6 +1050,15 @@
                 document.getElementById('direction').textContent = '右';
                 document.getElementById('target-harvest').textContent = '40';
                 document.getElementById('ripeness').textContent = '90';
+                
+                // マップタブのデフォルト値
+                document.getElementById('map-start-area').textContent = 'エリア1';
+                document.getElementById('map-start-lane').textContent = '通路1, 西側';
+                document.getElementById('map-end-area').textContent = 'エリア8';
+                document.getElementById('map-end-lane').textContent = '通路1, 西側';
+                document.getElementById('map-direction').textContent = '右';
+                document.getElementById('map-target-harvest').textContent = '40';
+                document.getElementById('map-ripeness').textContent = '90';
             }
         }
 
@@ -1345,6 +1153,15 @@
             document.getElementById('target-harvest').textContent = target;
             document.getElementById('ripeness').textContent = ripeness;
             
+            // マップタブの設定値も更新
+            document.getElementById('map-start-area').textContent = `エリア${area}`;
+            document.getElementById('map-start-lane').textContent = `通路${path}, ${ridgeText}`;
+            document.getElementById('map-end-area').textContent = `エリア${endArea}`;
+            document.getElementById('map-end-lane').textContent = `通路${endPath}, ${endRidgeText}`;
+            document.getElementById('map-direction').textContent = directionText;
+            document.getElementById('map-target-harvest').textContent = target;
+            document.getElementById('map-ripeness').textContent = ripeness;
+            
             localStorage.setItem('t7_settings', JSON.stringify({
                 area, path, ridge, direction, endArea, endPath, endRidge, target, ripeness
             }));
@@ -1354,9 +1171,141 @@
 
 
 
+        // select optionsを生成する関数
+        function createOptions(start, end, selected, prefix = '', suffix = '') {
+            let options = '';
+            for (let i = start; i <= end; i++) {
+                const sel = i == selected ? ' selected' : '';
+                options += `<option value="${i}"${sel}>${prefix}${i}${suffix}</option>`;
+            }
+            return options;
+        }
+
+        // 設定値項目を生成する関数
+        function createSettingsItems(prefix = '', editable = true) {
+            const editControls = editable ? `
+                <div class="edit-controls" style="display: none;">
+                    <select id="${prefix}edit-area" class="touch-select-input">
+                        ${createOptions(1, 8, 1, 'エリア')}
+                    </select>
+                </div>` : '';
+            
+            return `
+                <div class="value-item">
+                    <span class="label">開始エリア</span>
+                    <span class="value" id="${prefix}start-area">エリア1</span>
+                    ${editControls}
+                </div>
+                <div class="value-item">
+                    <span class="label">開始うね</span>
+                    <span class="value" id="${prefix}start-lane">通路1, 西側</span>
+                    ${editable ? `
+                    <div class="edit-controls" style="display: none;">
+                        <div style="display: flex; gap: 5px;">
+                            <select id="${prefix}edit-path" class="touch-select-input" style="flex: 1.3;">
+                                ${createOptions(1, 5, 1, '通路')}
+                            </select>
+                            <select id="${prefix}edit-ridge" class="touch-select-input" style="flex: 1.2;">
+                                <option value="west">西側</option>
+                                <option value="east">東側</option>
+                            </select>
+                        </div>
+                    </div>` : ''}
+                </div>
+                <div class="value-item">
+                    <span class="label">うね間移動方向</span>
+                    <span class="value" id="${prefix}direction">右</span>
+                    ${editable ? `
+                    <div class="edit-controls" style="display: none;">
+                        <select id="${prefix}edit-direction" class="touch-select-input">
+                            <option value="east">右</option>
+                            <option value="west">左</option>
+                        </select>
+                    </div>` : ''}
+                </div>
+                <div class="value-item" ${editable ? 'id="end-area-item"' : ''}>
+                    <span class="label">終了エリア</span>
+                    <span class="value" id="${prefix}end-area">エリア1</span>
+                    ${editable ? `
+                    <div class="edit-controls" style="display: none;">
+                        <select id="${prefix}edit-end-area" class="touch-select-input">
+                            ${createOptions(1, 8, 1, 'エリア')}
+                        </select>
+                    </div>` : ''}
+                </div>
+                <div class="value-item" ${editable ? 'id="end-lane-item"' : ''}>
+                    <span class="label">終了うね</span>
+                    <span class="value" id="${prefix}end-lane">通路1, 西側</span>
+                    ${editable ? `
+                    <div class="edit-controls" style="display: none;">
+                        <div style="display: flex; gap: 5px;">
+                            <select id="${prefix}edit-end-path" class="touch-select-input" style="flex: 1.3;">
+                                ${createOptions(1, 5, 1, '通路')}
+                            </select>
+                            <select id="${prefix}edit-end-ridge" class="touch-select-input" style="flex: 1.2;">
+                                <option value="west">西側</option>
+                                <option value="east">東側</option>
+                            </select>
+                        </div>
+                    </div>` : ''}
+                </div>
+                <div class="value-item">
+                    <span class="label">目標収穫量 (kg)</span>
+                    <span class="value" id="${prefix}target-harvest">40</span>
+                    ${editable ? `
+                    <div class="edit-controls" style="display: none;">
+                        <select id="${prefix}edit-target" class="touch-select-input">
+                            ${createOptions(1, 40, 40, '', 'kg')}
+                        </select>
+                    </div>` : ''}
+                </div>
+                <div class="value-item">
+                    <span class="label">完熟度 (%)</span>
+                    <span class="value" id="${prefix}ripeness">90</span>
+                    ${editable ? `
+                    <div class="edit-controls" style="display: none;">
+                        <select id="${prefix}edit-ripeness" class="touch-select-input">
+                            ${createOptions(50, 100, 90, '', '%')}
+                        </select>
+                    </div>` : ''}
+                </div>
+            `;
+        }
+
+        // 経路番号を生成する関数
+        function createPathNumbers() {
+            let numbers = '';
+            // 上半分の番号
+            for (let i = 1; i <= mapConfig.pathCount; i++) {
+                const x = mapConfig.startX + (i - 1) * mapConfig.spacing;
+                numbers += `<text x="${x}" y="${mapConfig.topY + 2}" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">${i}</text>`;
+            }
+            // 下半分の番号
+            for (let i = mapConfig.pathCount + 1; i <= mapConfig.pathCount * 2; i++) {
+                const x = mapConfig.startX + (mapConfig.pathCount * 2 - i) * mapConfig.spacing;
+                numbers += `<text x="${x}" y="${mapConfig.bottomY + 5}" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">${i}</text>`;
+            }
+            document.getElementById('path-numbers').innerHTML = numbers;
+        }
+
+        // 初期化
+        function initializeUI() {
+            document.getElementById('main-settings-display').innerHTML = createSettingsItems('', true);
+            document.getElementById('map-settings-display').innerHTML = createSettingsItems('map-', false);
+            
+            // マップ関連の初期化
+            pathPoints = generateRobotPath();
+            generateSVGPath();
+            createPathNumbers();
+            
+            // ロボット初期位置を設定
+            document.getElementById('robot-position').setAttribute('transform', `translate(${robotPosition.x}, ${robotPosition.y})`);
+        }
+
         // アプリケーション開始
         setInterval(updateClock, 1000);
         updateClock();
+        initializeUI();
         loadSettings();
         updateBatteryDisplay(85);
     </script>
