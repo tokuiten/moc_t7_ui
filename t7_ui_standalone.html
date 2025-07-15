@@ -788,8 +788,50 @@
                         <svg class="map-overlay" width="100%" height="100%">
                             <!-- 移動計画の軌跡 -->
                             <path id="robot-path" stroke="#e74c3c" stroke-width="2" fill="none" d="M 45 250 L 225 250 M 45 50 L 45 450 M 57 50 L 57 450 M 69 50 L 69 450 M 81 50 L 81 450 M 93 50 L 93 450 M 105 50 L 105 450 M 117 50 L 117 450 M 129 50 L 129 450 M 141 50 L 141 450 M 153 50 L 153 450 M 165 50 L 165 450 M 177 50 L 177 450 M 189 50 L 189 450 M 201 50 L 201 450 M 213 50 L 213 450 M 225 50 L 225 450"/>
-                            <!-- ロボットの現在位置 -->
-                            <circle id="robot-position" cx="45" cy="250" r="5" fill="#e74c3c" stroke="white" stroke-width="1"/>
+                            
+                            <!-- 経路の順序番号 -->
+                            <g id="path-numbers">
+                                <!-- 上半分の番号（左から右） -->
+                                <text x="45" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">1</text>
+                                <text x="57" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">2</text>
+                                <text x="69" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">3</text>
+                                <text x="81" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">4</text>
+                                <text x="93" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">5</text>
+                                <text x="105" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">6</text>
+                                <text x="117" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">7</text>
+                                <text x="129" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">8</text>
+                                <text x="141" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">9</text>
+                                <text x="153" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">10</text>
+                                <text x="165" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">11</text>
+                                <text x="177" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">12</text>
+                                <text x="189" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">13</text>
+                                <text x="201" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">14</text>
+                                <text x="213" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">15</text>
+                                <text x="225" y="52" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">16</text>
+                                
+                                <!-- 下半分の番号（右から左） -->
+                                <text x="225" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">17</text>
+                                <text x="213" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">18</text>
+                                <text x="201" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">19</text>
+                                <text x="189" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">20</text>
+                                <text x="177" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">21</text>
+                                <text x="165" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">22</text>
+                                <text x="153" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">23</text>
+                                <text x="141" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">24</text>
+                                <text x="129" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">25</text>
+                                <text x="117" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">26</text>
+                                <text x="105" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">27</text>
+                                <text x="93" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">28</text>
+                                <text x="81" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">29</text>
+                                <text x="69" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">30</text>
+                                <text x="57" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">31</text>
+                                <text x="45" y="455" text-anchor="middle" fill="#e74c3c" font-size="9" font-weight="bold">32</text>
+                            </g>
+                            
+                            <!-- ロボットの現在位置（三角形） -->
+                            <g id="robot-position" transform="translate(45, 250)">
+                                <path d="M 0,-8 L -6,6 L 6,6 Z" fill="#e74c3c" stroke="white" stroke-width="1.5" transform="rotate(0)"/>
+                            </g>
                         </svg>
                     </div>
 
@@ -866,55 +908,105 @@
         let currentHarvest = 0;
         let harvestInterval = null;
         let robotPosition = { x: 45, y: 250 };
+        let robotDirection = 0; // ロボットの向き（度）
         let pathPoints = [
+            // 上半分を左から右へ
             { x: 45, y: 250 },   // 開始位置（第1縦線との交差点）
             { x: 45, y: 50 },    // 第1縦線上端
             { x: 45, y: 250 },   // 第1縦線交差点に戻る
-            { x: 57, y: 250 },   // 第2縦線との交差点
+            { x: 57, y: 250 },   // 第2縦線交差点へ右に進む
             { x: 57, y: 50 },    // 第2縦線上端
             { x: 57, y: 250 },   // 第2縦線交差点に戻る
-            { x: 69, y: 250 },   // 第3縦線との交差点
+            { x: 69, y: 250 },   // 第3縦線交差点へ右に進む
             { x: 69, y: 50 },    // 第3縦線上端
             { x: 69, y: 250 },   // 第3縦線交差点に戻る
-            { x: 81, y: 250 },   // 第4縦線との交差点
+            { x: 81, y: 250 },   // 第4縦線交差点へ右に進む
             { x: 81, y: 50 },    // 第4縦線上端
             { x: 81, y: 250 },   // 第4縦線交差点に戻る
-            { x: 93, y: 250 },   // 第5縦線との交差点
+            { x: 93, y: 250 },   // 第5縦線交差点へ右に進む
             { x: 93, y: 50 },    // 第5縦線上端
             { x: 93, y: 250 },   // 第5縦線交差点に戻る
-            { x: 105, y: 250 },  // 第6縦線との交差点
+            { x: 105, y: 250 },  // 第6縦線交差点へ右に進む
             { x: 105, y: 50 },   // 第6縦線上端
             { x: 105, y: 250 },  // 第6縦線交差点に戻る
-            { x: 117, y: 250 },  // 第7縦線との交差点
+            { x: 117, y: 250 },  // 第7縦線交差点へ右に進む
             { x: 117, y: 50 },   // 第7縦線上端
             { x: 117, y: 250 },  // 第7縦線交差点に戻る
-            { x: 129, y: 250 },  // 第8縦線との交差点
+            { x: 129, y: 250 },  // 第8縦線交差点へ右に進む
             { x: 129, y: 50 },   // 第8縦線上端
             { x: 129, y: 250 },  // 第8縦線交差点に戻る
-            { x: 141, y: 250 },  // 第9縦線との交差点
+            { x: 141, y: 250 },  // 第9縦線交差点へ右に進む
             { x: 141, y: 50 },   // 第9縦線上端
             { x: 141, y: 250 },  // 第9縦線交差点に戻る
-            { x: 153, y: 250 },  // 第10縦線との交差点
+            { x: 153, y: 250 },  // 第10縦線交差点へ右に進む
             { x: 153, y: 50 },   // 第10縦線上端
             { x: 153, y: 250 },  // 第10縦線交差点に戻る
-            { x: 165, y: 250 },  // 第11縦線との交差点
+            { x: 165, y: 250 },  // 第11縦線交差点へ右に進む
             { x: 165, y: 50 },   // 第11縦線上端
             { x: 165, y: 250 },  // 第11縦線交差点に戻る
-            { x: 177, y: 250 },  // 第12縦線との交差点
+            { x: 177, y: 250 },  // 第12縦線交差点へ右に進む
             { x: 177, y: 50 },   // 第12縦線上端
             { x: 177, y: 250 },  // 第12縦線交差点に戻る
-            { x: 189, y: 250 },  // 第13縦線との交差点
+            { x: 189, y: 250 },  // 第13縦線交差点へ右に進む
             { x: 189, y: 50 },   // 第13縦線上端
             { x: 189, y: 250 },  // 第13縦線交差点に戻る
-            { x: 201, y: 250 },  // 第14縦線との交差点
+            { x: 201, y: 250 },  // 第14縦線交差点へ右に進む
             { x: 201, y: 50 },   // 第14縦線上端
             { x: 201, y: 250 },  // 第14縦線交差点に戻る
-            { x: 213, y: 250 },  // 第15縦線との交差点
+            { x: 213, y: 250 },  // 第15縦線交差点へ右に進む
             { x: 213, y: 50 },   // 第15縦線上端
             { x: 213, y: 250 },  // 第15縦線交差点に戻る
-            { x: 225, y: 250 },  // 第16縦線との交差点
+            { x: 225, y: 250 },  // 第16縦線交差点へ右に進む
             { x: 225, y: 50 },   // 第16縦線上端
-            { x: 225, y: 250 }   // 終了位置
+            { x: 225, y: 250 },  // 第16縦線交差点に戻る
+            // 下半分を右から左へ
+            { x: 225, y: 450 },  // 第16縦線下端
+            { x: 225, y: 250 },  // 第16縦線交差点に戻る
+            { x: 213, y: 250 },  // 第15縦線交差点へ左に進む
+            { x: 213, y: 450 },  // 第15縦線下端
+            { x: 213, y: 250 },  // 第15縦線交差点に戻る
+            { x: 201, y: 250 },  // 第14縦線交差点へ左に進む
+            { x: 201, y: 450 },  // 第14縦線下端
+            { x: 201, y: 250 },  // 第14縦線交差点に戻る
+            { x: 189, y: 250 },  // 第13縦線交差点へ左に進む
+            { x: 189, y: 450 },  // 第13縦線下端
+            { x: 189, y: 250 },  // 第13縦線交差点に戻る
+            { x: 177, y: 250 },  // 第12縦線交差点へ左に進む
+            { x: 177, y: 450 },  // 第12縦線下端
+            { x: 177, y: 250 },  // 第12縦線交差点に戻る
+            { x: 165, y: 250 },  // 第11縦線交差点へ左に進む
+            { x: 165, y: 450 },  // 第11縦線下端
+            { x: 165, y: 250 },  // 第11縦線交差点に戻る
+            { x: 153, y: 250 },  // 第10縦線交差点へ左に進む
+            { x: 153, y: 450 },  // 第10縦線下端
+            { x: 153, y: 250 },  // 第10縦線交差点に戻る
+            { x: 141, y: 250 },  // 第9縦線交差点へ左に進む
+            { x: 141, y: 450 },  // 第9縦線下端
+            { x: 141, y: 250 },  // 第9縦線交差点に戻る
+            { x: 129, y: 250 },  // 第8縦線交差点へ左に進む
+            { x: 129, y: 450 },  // 第8縦線下端
+            { x: 129, y: 250 },  // 第8縦線交差点に戻る
+            { x: 117, y: 250 },  // 第7縦線交差点へ左に進む
+            { x: 117, y: 450 },  // 第7縦線下端
+            { x: 117, y: 250 },  // 第7縦線交差点に戻る
+            { x: 105, y: 250 },  // 第6縦線交差点へ左に進む
+            { x: 105, y: 450 },  // 第6縦線下端
+            { x: 105, y: 250 },  // 第6縦線交差点に戻る
+            { x: 93, y: 250 },   // 第5縦線交差点へ左に進む
+            { x: 93, y: 450 },   // 第5縦線下端
+            { x: 93, y: 250 },   // 第5縦線交差点に戻る
+            { x: 81, y: 250 },   // 第4縦線交差点へ左に進む
+            { x: 81, y: 450 },   // 第4縦線下端
+            { x: 81, y: 250 },   // 第4縦線交差点に戻る
+            { x: 69, y: 250 },   // 第3縦線交差点へ左に進む
+            { x: 69, y: 450 },   // 第3縦線下端
+            { x: 69, y: 250 },   // 第3縦線交差点に戻る
+            { x: 57, y: 250 },   // 第2縦線交差点へ左に進む
+            { x: 57, y: 450 },   // 第2縦線下端
+            { x: 57, y: 250 },   // 第2縦線交差点に戻る
+            { x: 45, y: 250 },   // 第1縦線交差点へ左に進む
+            { x: 45, y: 450 },   // 第1縦線下端
+            { x: 45, y: 250 }    // 終了位置（開始位置に戻る）
         ];
         let currentPathIndex = 0;
         let pathProgress = 0;
@@ -965,8 +1057,8 @@
         
         // ロボット位置更新
         function updateRobotPosition() {
-            const robotCircle = document.getElementById('robot-position');
-            if (robotCircle && currentPathIndex < pathPoints.length - 1) {
+            const robotGroup = document.getElementById('robot-position');
+            if (robotGroup && currentPathIndex < pathPoints.length - 1) {
                 const current = pathPoints[currentPathIndex];
                 const next = pathPoints[currentPathIndex + 1];
                 
@@ -996,8 +1088,25 @@
                     robotPosition.y = pathPoints[pathPoints.length - 1].y;
                 }
                 
-                robotCircle.setAttribute('cx', robotPosition.x);
-                robotCircle.setAttribute('cy', robotPosition.y);
+                // ロボットの向きを計算
+                if (currentPathIndex < pathPoints.length - 1) {
+                    const current = pathPoints[currentPathIndex];
+                    const next = pathPoints[currentPathIndex + 1];
+                    const dx = next.x - current.x;
+                    const dy = next.y - current.y;
+                    
+                    if (Math.abs(dx) > 0.1) {
+                        robotDirection = dx > 0 ? 90 : -90; // 右向きまたは左向き
+                    } else if (Math.abs(dy) > 0.1) {
+                        robotDirection = dy > 0 ? 180 : 0; // 下向きまたは上向き
+                    }
+                }
+                
+                robotGroup.setAttribute('transform', `translate(${robotPosition.x}, ${robotPosition.y})`);
+                const robotPath = robotGroup.querySelector('path');
+                if (robotPath) {
+                    robotPath.setAttribute('transform', `rotate(${robotDirection})`);
+                }
             }
         }
 
@@ -1085,10 +1194,14 @@
                 currentPathIndex = 0;
                 pathProgress = 0;
                 robotPosition = { x: pathPoints[0].x, y: pathPoints[0].y };
-                const robotCircle = document.getElementById('robot-position');
-                if (robotCircle) {
-                    robotCircle.setAttribute('cx', robotPosition.x);
-                    robotCircle.setAttribute('cy', robotPosition.y);
+                robotDirection = 0;
+                const robotGroup = document.getElementById('robot-position');
+                if (robotGroup) {
+                    robotGroup.setAttribute('transform', `translate(${robotPosition.x}, ${robotPosition.y})`);
+                    const robotPath = robotGroup.querySelector('path');
+                    if (robotPath) {
+                        robotPath.setAttribute('transform', `rotate(${robotDirection})`);
+                    }
                 }
             }
         }
