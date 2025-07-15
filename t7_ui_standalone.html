@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>収穫ロボT7 UI - スタンドアロン版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .screen-container {
+            width: 800px;
+            height: 600px;
+            background-color: white;
+            border: 3px solid #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            height: 60px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header .clock {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .battery {
+            display: flex;
+            align-items: center;
+        }
+        
+        .battery-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .battery-icon {
+            width: 40px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 3px;
+            position: relative;
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 6px;
+            width: 2px;
+            height: 8px;
+            background-color: white;
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .battery-fill {
+            height: 100%;
+            background-color: #27ae60;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+            width: 85%;
+        }
+        
+        .battery-percentage {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            min-width: 35px;
+        }
+
+        .tab-container {
+            display: flex;
+            background-color: #ecf0f1;
+            border-bottom: 2px solid #bdc3c7;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            background-color: #ecf0f1;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .tab.active {
+            background-color: white;
+            border-bottom: 2px solid white;
+            margin-bottom: -2px;
+        }
+
+        .tab:hover {
+            background-color: #d5dbdb;
+        }
+
+        .tab.active:hover {
+            background-color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .main-tab {
+            display: grid;
+            grid-template-columns: 1fr 1fr 0.8fr;
+            grid-template-rows: 1fr;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .settings-display {
+            grid-column: 1;
+            grid-row: 1;
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            overflow-y: auto;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .settings-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .edit-btn, .save-btn {
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .save-btn {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background-color: #229954;
+        }
+        
+        .edit-controls {
+            margin-top: 5px;
+            display: flex;
+            gap: 5px;
+        }
+        
+        .edit-input {
+            padding: 2px 4px;
+            font-size: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            flex: 1;
+        }
+        
+        
+        .touch-select-input {
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .touch-select-input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .value-display {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .value-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            background-color: #ffffff;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .value-item .label {
+            font-size: 11px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .value-item .value {
+            font-size: 13px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: right;
+        }
+        
+
+        .map-container {
+            grid-column: 2;
+            grid-row: 1;
+            background-color: #e9ecef;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        .map-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+
+        .status-control {
+            grid-column: 3;
+            grid-row: 1;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .status-info {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .history-info {
+            flex: 1;
+            border-top: 1px solid #dee2e6;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        
+        .history-info h3 {
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .history-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            background-color: #ffffff;
+            border-radius: 4px;
+            border-left: 3px solid #27ae60;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 4px;
+        }
+        
+        .history-item .history-label {
+            font-size: 10px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .history-item .history-value {
+            font-size: 11px;
+            font-weight: 500;
+            color: #2c3e50;
+            text-align: right;
+        }
+        
+        .history-empty {
+            text-align: center;
+            color: #6c757d;
+            font-size: 11px;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .status-info h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .status-info p {
+            margin: 6px 0;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        
+        .status-info .status-standby {
+            color: #6c757d !important;
+        }
+        
+        .status-info .status-charging {
+            color: #ffc107 !important;
+        }
+        
+        .status-info .status-harvesting {
+            color: #28a745 !important;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .external-label {
+            font-size: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 50px;
+            text-align: center;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 15px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .toggle-switch input:checked + .slider {
+            background-color: #27ae60;
+        }
+        
+        .toggle-switch input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .toggle-switch input:not(:checked) + .slider {
+            background-color: #e74c3c;
+        }
+        
+
+        .details-tab {
+            padding: 20px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .details-content {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .error-section {
+            margin-bottom: 25px;
+        }
+        
+        .error-display {
+            background-color: #ffffff;
+            border: 2px solid #e74c3c;
+            border-radius: 6px;
+            padding: 15px;
+            min-height: 120px;
+        }
+        
+        .error-content {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
+        .no-error {
+            color: #27ae60;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error-item {
+            padding: 8px;
+            margin-bottom: 8px;
+            background-color: #fadbd8;
+            border-left: 4px solid #e74c3c;
+            border-radius: 4px;
+        }
+        
+        .error-time {
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .error-message {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .info-display {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f2f6;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: bold;
+        }
+        
+        .info-value {
+            font-size: 12px;
+            color: #2c3e50;
+            text-align: right;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="screen-container">
+        <header class="header">
+            <h1>T7 tokuiten</h1>
+            <div class="clock" id="clock">2024/01/15 00:00</div>
+            <div class="battery">
+                <div class="battery-container">
+                    <div class="battery-icon">
+                        <div class="battery-fill" id="battery-fill"></div>
+                    </div>
+                    <span class="battery-percentage" id="battery">85%</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="tab-container">
+            <button class="tab active" onclick="switchTab('main')">メイン</button>
+            <button class="tab" onclick="switchTab('details')">詳細</button>
+        </div>
+
+        <div class="content">
+            <div id="main-tab" class="tab-content active">
+                <div class="main-tab">
+                    <div class="settings-display">
+                        <div class="settings-header">
+                            <h3>設定値</h3>
+                            <button id="edit-settings-btn" class="edit-btn" onclick="toggleEditMode()">編集</button>
+                            <button id="save-settings-btn" class="save-btn" onclick="saveMainSettings()" style="display: none;">保存</button>
+                        </div>
+                        <div class="value-display" id="main-settings-display">
+                            <div class="value-item">
+                                <span class="label">開始エリア</span>
+                                <span class="value" id="start-area">エリア1</span>
+                                <div class="edit-controls" style="display: none;">
+                                    <select id="edit-area" class="touch-select-input">
+                                        <option value="1">エリア1</option>
+                                        <option value="2">エリア2</option>
+                                        <option value="3">エリア3</option>
+                                        <option value="4">エリア4</option>
+                                        <option value="5">エリア5</option>
+                                        <option value="6">エリア6</option>
+                                        <option value="7">エリア7</option>
+                                        <option value="8">エリア8</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="value-item">
+                                <span class="label">開始うね</span>
+                                <span class="value" id="start-lane">通路1, 西側</span>
+                                <div class="edit-controls" style="display: none;">
+                                    <div style="display: flex; gap: 5px;">
+                                        <select id="edit-path" class="touch-select-input" style="flex: 1.3;">
+                                            <option value="1">通路1</option>
+                                            <option value="2">通路2</option>
+                                            <option value="3">通路3</option>
+                                            <option value="4">通路4</option>
+                                            <option value="5">通路5</option>
+                                        </select>
+                                        <select id="edit-ridge" class="touch-select-input" style="flex: 1.2;">
+                                            <option value="west">西側</option>
+                                            <option value="east">東側</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="value-item">
+                                <span class="label">うね間移動方向</span>
+                                <span class="value" id="direction">右</span>
+                                <div class="edit-controls" style="display: none;">
+                                    <select id="edit-direction" class="touch-select-input">
+                                        <option value="east">右</option>
+                                        <option value="west">左</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="value-item" id="end-area-item">
+                                <span class="label">終了エリア</span>
+                                <span class="value" id="end-area">エリア1</span>
+                                <div class="edit-controls" style="display: none;">
+                                    <select id="edit-end-area" class="touch-select-input">
+                                        <option value="1">エリア1</option>
+                                        <option value="2">エリア2</option>
+                                        <option value="3">エリア3</option>
+                                        <option value="4">エリア4</option>
+                                        <option value="5">エリア5</option>
+                                        <option value="6">エリア6</option>
+                                        <option value="7">エリア7</option>
+                                        <option value="8">エリア8</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="value-item" id="end-lane-item">
+                                <span class="label">終了うね</span>
+                                <span class="value" id="end-lane">通路1, 西側</span>
+                                <div class="edit-controls" style="display: none;">
+                                    <div style="display: flex; gap: 5px;">
+                                        <select id="edit-end-path" class="touch-select-input" style="flex: 1.3;">
+                                            <option value="1">通路1</option>
+                                            <option value="2">通路2</option>
+                                            <option value="3">通路3</option>
+                                            <option value="4">通路4</option>
+                                            <option value="5">通路5</option>
+                                        </select>
+                                        <select id="edit-end-ridge" class="touch-select-input" style="flex: 1.2;">
+                                            <option value="west">西側</option>
+                                            <option value="east">東側</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="value-item">
+                                <span class="label">目標収穫量 (kg)</span>
+                                <span class="value" id="target-harvest">40</span>
+                                <div class="edit-controls" style="display: none;">
+                                    <select id="edit-target" class="touch-select-input">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                        <option value="19">19</option>
+                                        <option value="20">20</option>
+                                        <option value="21">21</option>
+                                        <option value="22">22</option>
+                                        <option value="23">23</option>
+                                        <option value="24">24</option>
+                                        <option value="25">25</option>
+                                        <option value="26">26</option>
+                                        <option value="27">27</option>
+                                        <option value="28">28</option>
+                                        <option value="29">29</option>
+                                        <option value="30">30</option>
+                                        <option value="31">31</option>
+                                        <option value="32">32</option>
+                                        <option value="33">33</option>
+                                        <option value="34">34</option>
+                                        <option value="35">35</option>
+                                        <option value="36">36</option>
+                                        <option value="37">37</option>
+                                        <option value="38">38</option>
+                                        <option value="39">39</option>
+                                        <option value="40" selected>40</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="value-item">
+                                <span class="label">完熟度 (%)</span>
+                                <span class="value" id="ripeness">90</span>
+                                <div class="edit-controls" style="display: none;">
+                                    <select id="edit-ripeness" class="touch-select-input">
+                                        <option value="50">50</option>
+                                        <option value="51">51</option>
+                                        <option value="52">52</option>
+                                        <option value="53">53</option>
+                                        <option value="54">54</option>
+                                        <option value="55">55</option>
+                                        <option value="56">56</option>
+                                        <option value="57">57</option>
+                                        <option value="58">58</option>
+                                        <option value="59">59</option>
+                                        <option value="60">60</option>
+                                        <option value="61">61</option>
+                                        <option value="62">62</option>
+                                        <option value="63">63</option>
+                                        <option value="64">64</option>
+                                        <option value="65">65</option>
+                                        <option value="66">66</option>
+                                        <option value="67">67</option>
+                                        <option value="68">68</option>
+                                        <option value="69">69</option>
+                                        <option value="70">70</option>
+                                        <option value="71">71</option>
+                                        <option value="72">72</option>
+                                        <option value="73">73</option>
+                                        <option value="74">74</option>
+                                        <option value="75">75</option>
+                                        <option value="76">76</option>
+                                        <option value="77">77</option>
+                                        <option value="78">78</option>
+                                        <option value="79">79</option>
+                                        <option value="80">80</option>
+                                        <option value="81">81</option>
+                                        <option value="82">82</option>
+                                        <option value="83">83</option>
+                                        <option value="84">84</option>
+                                        <option value="85">85</option>
+                                        <option value="86">86</option>
+                                        <option value="87">87</option>
+                                        <option value="88">88</option>
+                                        <option value="89">89</option>
+                                        <option value="90" selected>90</option>
+                                        <option value="91">91</option>
+                                        <option value="92">92</option>
+                                        <option value="93">93</option>
+                                        <option value="94">94</option>
+                                        <option value="95">95</option>
+                                        <option value="96">96</option>
+                                        <option value="97">97</option>
+                                        <option value="98">98</option>
+                                        <option value="99">99</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="map-container">
+                        <h3 style="position: absolute; top: 10px; left: 10px; margin: 0; color: #2c3e50; font-size: 16px; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px; z-index: 1;">マップ</h3>
+                        <img src="map_house_3.png" alt="農場マップ">
+                        <svg class="map-overlay" width="100%" height="100%">
+                            <!-- 移動計画の軌跡 -->
+                            <path id="robot-path" stroke="#e74c3c" stroke-width="2" fill="none" d="M 45 250 L 225 250 M 45 50 L 45 450 M 57 50 L 57 450 M 69 50 L 69 450 M 81 50 L 81 450 M 93 50 L 93 450 M 105 50 L 105 450 M 117 50 L 117 450 M 129 50 L 129 450 M 141 50 L 141 450 M 153 50 L 153 450 M 165 50 L 165 450 M 177 50 L 177 450 M 189 50 L 189 450 M 201 50 L 201 450 M 213 50 L 213 450 M 225 50 L 225 450"/>
+                            <!-- ロボットの現在位置 -->
+                            <circle id="robot-position" cx="45" cy="250" r="5" fill="#e74c3c" stroke="white" stroke-width="1"/>
+                        </svg>
+                    </div>
+
+                    <div class="status-control">
+                        <div class="control-panel">
+                            <div class="toggle-container">
+                                <span class="external-label left">収穫終了</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="harvest-toggle" onchange="toggleHarvest()">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="external-label right">収穫開始</span>
+                            </div>
+                        </div>
+                        <div class="status-info">
+                            <h3>収穫状況</h3>
+                            <div class="value-display">
+                                <div class="value-item">
+                                    <span class="label">ロボット状態</span>
+                                    <span class="value" id="robot-status" class="status-standby">待機中</span>
+                                </div>
+                                <div class="value-item">
+                                    <span class="label">現在の収穫量 (kg)</span>
+                                    <span class="value" id="current-harvest">0.0</span>
+                                </div>
+                                <div class="value-item">
+                                    <span class="label">経過時間</span>
+                                    <span class="value" id="elapsed-time">00:00:00</span>
+                                </div>
+                            </div>
+                            <div id="error-container"></div>
+                        </div>
+                        <div class="history-info">
+                            <h3>履歴</h3>
+                            <div id="harvest-history" class="history-list">
+                                <div class="history-empty">履歴なし</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="details-tab" class="tab-content">
+                <div class="details-tab">
+                    <div class="details-content">
+                        <h3 style="font-size: 16px; margin: 0 0 15px 0; color: #2c3e50;">詳細情報</h3>
+                        
+                        <div class="error-section">
+                            <h4 style="font-size: 14px; margin: 0 0 10px 0; color: #e74c3c;">エラー内容</h4>
+                            <div class="error-display">
+                                <div id="error-list" class="error-content">
+                                    <div class="no-error">エラーはありません</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="system-info">
+                            <h4 style="font-size: 14px; margin: 20px 0 10px 0; color: #2c3e50;">システム情報</h4>
+                            <div class="info-display">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // グローバル変数
+        let isHarvesting = false;
+        let startTime = null;
+        let elapsedInterval = null;
+        let currentHarvest = 0;
+        let harvestInterval = null;
+        let robotPosition = { x: 45, y: 250 };
+        let pathPoints = [
+            { x: 45, y: 250 },   // 開始位置（第1縦線との交差点）
+            { x: 45, y: 50 },    // 第1縦線上端
+            { x: 45, y: 250 },   // 第1縦線交差点に戻る
+            { x: 57, y: 250 },   // 第2縦線との交差点
+            { x: 57, y: 50 },    // 第2縦線上端
+            { x: 57, y: 250 },   // 第2縦線交差点に戻る
+            { x: 69, y: 250 },   // 第3縦線との交差点
+            { x: 69, y: 50 },    // 第3縦線上端
+            { x: 69, y: 250 },   // 第3縦線交差点に戻る
+            { x: 81, y: 250 },   // 第4縦線との交差点
+            { x: 81, y: 50 },    // 第4縦線上端
+            { x: 81, y: 250 },   // 第4縦線交差点に戻る
+            { x: 93, y: 250 },   // 第5縦線との交差点
+            { x: 93, y: 50 },    // 第5縦線上端
+            { x: 93, y: 250 },   // 第5縦線交差点に戻る
+            { x: 105, y: 250 },  // 第6縦線との交差点
+            { x: 105, y: 50 },   // 第6縦線上端
+            { x: 105, y: 250 },  // 第6縦線交差点に戻る
+            { x: 117, y: 250 },  // 第7縦線との交差点
+            { x: 117, y: 50 },   // 第7縦線上端
+            { x: 117, y: 250 },  // 第7縦線交差点に戻る
+            { x: 129, y: 250 },  // 第8縦線との交差点
+            { x: 129, y: 50 },   // 第8縦線上端
+            { x: 129, y: 250 },  // 第8縦線交差点に戻る
+            { x: 141, y: 250 },  // 第9縦線との交差点
+            { x: 141, y: 50 },   // 第9縦線上端
+            { x: 141, y: 250 },  // 第9縦線交差点に戻る
+            { x: 153, y: 250 },  // 第10縦線との交差点
+            { x: 153, y: 50 },   // 第10縦線上端
+            { x: 153, y: 250 },  // 第10縦線交差点に戻る
+            { x: 165, y: 250 },  // 第11縦線との交差点
+            { x: 165, y: 50 },   // 第11縦線上端
+            { x: 165, y: 250 },  // 第11縦線交差点に戻る
+            { x: 177, y: 250 },  // 第12縦線との交差点
+            { x: 177, y: 50 },   // 第12縦線上端
+            { x: 177, y: 250 },  // 第12縦線交差点に戻る
+            { x: 189, y: 250 },  // 第13縦線との交差点
+            { x: 189, y: 50 },   // 第13縦線上端
+            { x: 189, y: 250 },  // 第13縦線交差点に戻る
+            { x: 201, y: 250 },  // 第14縦線との交差点
+            { x: 201, y: 50 },   // 第14縦線上端
+            { x: 201, y: 250 },  // 第14縦線交差点に戻る
+            { x: 213, y: 250 },  // 第15縦線との交差点
+            { x: 213, y: 50 },   // 第15縦線上端
+            { x: 213, y: 250 },  // 第15縦線交差点に戻る
+            { x: 225, y: 250 },  // 第16縦線との交差点
+            { x: 225, y: 50 },   // 第16縦線上端
+            { x: 225, y: 250 }   // 終了位置
+        ];
+        let currentPathIndex = 0;
+        let pathProgress = 0;
+        let harvestHistory = [];
+        
+
+        // 時計更新
+        function updateClock() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${year}/${month}/${day} ${hours}:${minutes}`;
+        }
+
+        // 経過時間更新
+        function updateElapsedTime() {
+            if (!startTime) return;
+            
+            const now = new Date();
+            const elapsed = Math.floor((now - startTime) / 1000) * 100; // 100倍速
+            const hours = Math.floor(elapsed / 3600);
+            const minutes = Math.floor((elapsed % 3600) / 60);
+            const seconds = elapsed % 60;
+            
+            const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('elapsed-time').textContent = timeString;
+        }
+
+        // バッテリー表示更新
+        function updateBatteryDisplay(percentage) {
+            const batteryFill = document.getElementById('battery-fill');
+            const batteryText = document.getElementById('battery');
+            
+            batteryText.textContent = percentage + '%';
+            batteryFill.style.width = percentage + '%';
+            
+            if (percentage > 50) {
+                batteryFill.style.backgroundColor = '#27ae60';
+            } else if (percentage > 20) {
+                batteryFill.style.backgroundColor = '#f39c12';
+            } else {
+                batteryFill.style.backgroundColor = '#e74c3c';
+            }
+        }
+        
+        // ロボット位置更新
+        function updateRobotPosition() {
+            const robotCircle = document.getElementById('robot-position');
+            if (robotCircle && currentPathIndex < pathPoints.length - 1) {
+                const current = pathPoints[currentPathIndex];
+                const next = pathPoints[currentPathIndex + 1];
+                
+                // 縦線移動（x座標が同じ）の場合は速度を半分に
+                const isVerticalMove = (current.x === next.x);
+                const speed = isVerticalMove ? 0.15 : 0.3;
+                
+                pathProgress += speed;
+                
+                if (pathProgress >= 1.0) {
+                    currentPathIndex++;
+                    pathProgress = 0;
+                    if (currentPathIndex >= pathPoints.length - 1) {
+                        currentPathIndex = pathPoints.length - 1;
+                        pathProgress = 1.0;
+                    }
+                }
+                
+                if (currentPathIndex < pathPoints.length - 1) {
+                    const current = pathPoints[currentPathIndex];
+                    const next = pathPoints[currentPathIndex + 1];
+                    
+                    robotPosition.x = current.x + (next.x - current.x) * pathProgress;
+                    robotPosition.y = current.y + (next.y - current.y) * pathProgress;
+                } else {
+                    robotPosition.x = pathPoints[pathPoints.length - 1].x;
+                    robotPosition.y = pathPoints[pathPoints.length - 1].y;
+                }
+                
+                robotCircle.setAttribute('cx', robotPosition.x);
+                robotCircle.setAttribute('cy', robotPosition.y);
+            }
+        }
+
+        // 収穫シミュレーション
+        function simulateHarvest() {
+            currentHarvest += Math.random() * 0.5;
+            document.getElementById('current-harvest').textContent = currentHarvest.toFixed(1);
+            
+            updateElapsedTime();
+            updateRobotPosition();
+        }
+
+        // 履歴に追加
+        function addToHistory(harvest, time) {
+            const historyItem = {
+                harvest: harvest,
+                time: time,
+                timestamp: new Date()
+            };
+            
+            harvestHistory.unshift(historyItem);
+            if (harvestHistory.length > 3) {
+                harvestHistory.pop();
+            }
+            
+            updateHistoryDisplay();
+        }
+        
+        // 履歴表示更新
+        function updateHistoryDisplay() {
+            const historyContainer = document.getElementById('harvest-history');
+            
+            if (harvestHistory.length === 0) {
+                historyContainer.innerHTML = '<div class="history-empty">履歴なし</div>';
+                return;
+            }
+            
+            let historyHTML = '';
+            harvestHistory.forEach((item) => {
+                const date = item.timestamp.toLocaleDateString();
+                const time = item.timestamp.toLocaleTimeString();
+                historyHTML += `
+                    <div class="history-item">
+                        <div>
+                            <div class="history-label">${date} ${time}</div>
+                            <div class="history-label">収穫量: ${item.harvest}kg</div>
+                        </div>
+                        <div class="history-value">時間: ${item.time}</div>
+                    </div>
+                `;
+            });
+            
+            historyContainer.innerHTML = historyHTML;
+        }
+
+        // 収穫トグル
+        function toggleHarvest() {
+            const toggle = document.getElementById('harvest-toggle');
+            const statusSpan = document.getElementById('robot-status');
+            
+            isHarvesting = toggle.checked;
+            
+            if (isHarvesting) {
+                statusSpan.textContent = '収穫中';
+                statusSpan.className = 'status-harvesting';
+                
+                startTime = new Date();
+                harvestInterval = setInterval(simulateHarvest, 500);
+            } else {
+                statusSpan.textContent = '待機中';
+                statusSpan.className = 'status-standby';
+                
+                if (currentHarvest > 0) {
+                    const elapsedTimeText = document.getElementById('elapsed-time').textContent;
+                    addToHistory(currentHarvest.toFixed(1), elapsedTimeText);
+                }
+                
+                clearInterval(harvestInterval);
+                startTime = null;
+                document.getElementById('elapsed-time').textContent = '00:00:00';
+                currentHarvest = 0;
+                document.getElementById('current-harvest').textContent = '0.0';
+                
+                // ロボット位置をリセット
+                currentPathIndex = 0;
+                pathProgress = 0;
+                robotPosition = { x: pathPoints[0].x, y: pathPoints[0].y };
+                const robotCircle = document.getElementById('robot-position');
+                if (robotCircle) {
+                    robotCircle.setAttribute('cx', robotPosition.x);
+                    robotCircle.setAttribute('cy', robotPosition.y);
+                }
+            }
+        }
+
+        // タブ切り替え
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                if (tab.textContent === (tabName === 'main' ? 'メイン' : '詳細')) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            contents.forEach(content => {
+                if (content.id === `${tabName}-tab`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+
+        // 設定読み込み
+        function loadSettings() {
+            const saved = localStorage.getItem('t7_settings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                const ridgeText = settings.ridge === 'west' ? '西側' : '東側';
+                const directionText = settings.direction === 'east' ? '右' : '左';
+                document.getElementById('start-area').textContent = `エリア${settings.area}`;
+                document.getElementById('start-lane').textContent = `通路${settings.path}, ${ridgeText}`;
+                document.getElementById('end-area').textContent = `エリア${settings.endArea || '8'}`;
+                document.getElementById('end-lane').textContent = `通路${settings.endPath || '1'}, ${settings.endRidge === 'east' ? '東側' : '西側'}`;
+                document.getElementById('direction').textContent = directionText;
+                document.getElementById('target-harvest').textContent = settings.target;
+                document.getElementById('ripeness').textContent = settings.ripeness;
+            } else {
+                document.getElementById('start-area').textContent = 'エリア1';
+                document.getElementById('start-lane').textContent = '通路1, 西側';
+                document.getElementById('end-area').textContent = 'エリア8';
+                document.getElementById('end-lane').textContent = '通路1, 西側';
+                document.getElementById('direction').textContent = '右';
+                document.getElementById('target-harvest').textContent = '40';
+                document.getElementById('ripeness').textContent = '90';
+            }
+        }
+
+        // 編集モード切り替え
+        function toggleEditMode() {
+            const editBtn = document.getElementById('edit-settings-btn');
+            const saveBtn = document.getElementById('save-settings-btn');
+            const valueItems = document.querySelectorAll('#main-settings-display .value-item');
+            const endAreaItem = document.getElementById('end-area-item');
+            const endLaneItem = document.getElementById('end-lane-item');
+            
+            const isEditing = editBtn.style.display === 'none';
+            
+            if (isEditing) {
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+                endAreaItem.style.display = 'flex';
+                endLaneItem.style.display = 'flex';
+                
+                valueItems.forEach(item => {
+                    const value = item.querySelector('.value');
+                    const editControls = item.querySelector('.edit-controls');
+                    if (value && editControls) {
+                        value.style.display = 'inline';
+                        editControls.style.display = 'none';
+                    }
+                });
+            } else {
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+                
+                syncEditFieldsFromDisplay();
+                
+                valueItems.forEach(item => {
+                    const value = item.querySelector('.value');
+                    const editControls = item.querySelector('.edit-controls');
+                    if (value && editControls) {
+                        value.style.display = 'none';
+                        editControls.style.display = 'inline';
+                    }
+                });
+            }
+        }
+        
+        // 編集フィールド同期
+        function syncEditFieldsFromDisplay() {
+            document.getElementById('edit-area').value = '1';
+            document.getElementById('edit-path').value = '1';
+            document.getElementById('edit-ridge').value = 'west';
+            document.getElementById('edit-direction').value = 'east';
+            document.getElementById('edit-end-area').value = '8';
+            document.getElementById('edit-end-path').value = '1';
+            document.getElementById('edit-end-ridge').value = 'west';
+            document.getElementById('edit-target').value = '40';
+            document.getElementById('edit-ripeness').value = '90';
+        }
+        
+        // 設定保存
+        function saveMainSettings() {
+            const area = document.getElementById('edit-area').value;
+            const path = document.getElementById('edit-path').value;
+            const ridge = document.getElementById('edit-ridge').value;
+            const direction = document.getElementById('edit-direction').value;
+            const endArea = document.getElementById('edit-end-area').value;
+            const endPath = document.getElementById('edit-end-path').value;
+            const endRidge = document.getElementById('edit-end-ridge').value;
+            const target = document.getElementById('edit-target').value;
+            const ripeness = document.getElementById('edit-ripeness').value;
+            
+            // 経路とロボット位置を一時的に非表示
+            const robotPath = document.getElementById('robot-path');
+            const robotPosition = document.getElementById('robot-position');
+            
+            robotPath.style.display = 'none';
+            robotPosition.style.display = 'none';
+            
+            // 1秒後に表示
+            setTimeout(() => {
+                robotPath.style.display = 'block';
+                robotPosition.style.display = 'block';
+            }, 1000);
+            
+            const ridgeText = ridge === 'west' ? '西側' : '東側';
+            const directionText = direction === 'east' ? '右' : '左';
+            const endRidgeText = endRidge === 'west' ? '西側' : '東側';
+            
+            document.getElementById('start-area').textContent = `エリア${area}`;
+            document.getElementById('start-lane').textContent = `通路${path}, ${ridgeText}`;
+            document.getElementById('end-area').textContent = `エリア${endArea}`;
+            document.getElementById('end-lane').textContent = `通路${endPath}, ${endRidgeText}`;
+            document.getElementById('direction').textContent = directionText;
+            document.getElementById('target-harvest').textContent = target;
+            document.getElementById('ripeness').textContent = ripeness;
+            
+            localStorage.setItem('t7_settings', JSON.stringify({
+                area, path, ridge, direction, endArea, endPath, endRidge, target, ripeness
+            }));
+            
+            toggleEditMode();
+        }
+
+
+
+        // アプリケーション開始
+        setInterval(updateClock, 1000);
+        updateClock();
+        loadSettings();
+        updateBatteryDisplay(85);
+    </script>
+</body>
+</html>
